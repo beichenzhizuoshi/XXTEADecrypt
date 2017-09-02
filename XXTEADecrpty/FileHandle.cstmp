@@ -1,0 +1,63 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+public class FileHandle{
+    public List<string> fileBox = new List<string>();
+	
+	public byte[] FileRead(string path)
+	{
+		FileInfo fi = new FileInfo(path);
+		long len = fi.Length;
+		FileStream fs = new FileStream(path, FileMode.Open);
+		byte[] buffer = new byte[len];
+		fs.Read(buffer, 0, (int)len);
+        fs.Flush();
+        fs.Close();
+		return buffer;
+	}
+    public bool FileWrite(byte[] data, string pathAndName)
+    {
+        try
+        {
+            FileStream fs = new FileStream(pathAndName, FileMode.Create);
+            fs.Write(data, 0, data.Length);
+            fs.Flush();
+            fs.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("写入文件异常:" + e.ToString());
+            return false;
+        }
+
+        
+        return true;
+    }
+	/// <summary>
+    /// 获取指定目录下的所有符合条件的文件的绝对路径
+    /// </summary>
+    /// <param name="folderFullName">传入的目录</param>
+    /// <param name="suffix">过滤条件</param>
+    /// <returns>符合条件的文件的绝对路径字符串数组</returns>
+    public void DirectoryToFile(string folderFullName, string suffix)
+	{
+		DirectoryInfo TheFolder = new DirectoryInfo(folderFullName);
+	
+		string absoultPath;
+        //获取当前目录的文件
+		foreach(FileInfo nextFile in TheFolder.GetFiles(suffix))
+		{
+            absoultPath = nextFile.FullName;
+            fileBox.Add(absoultPath);
+		
+			Console.WriteLine("获取到文件:" +absoultPath);
+		}
+		foreach(DirectoryInfo nextFolder in TheFolder.GetDirectories())
+		{
+			Console.WriteLine("获取到子目录:" + nextFolder.FullName);
+            this.DirectoryToFile(nextFolder.FullName, suffix);
+		}
+	}
+    
+}
